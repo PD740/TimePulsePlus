@@ -1,6 +1,9 @@
 #include <pebble.h>
 #include "main.h"  
 
+#define QUIET_TIME_START 22
+#define QUIET_TIME_END 9
+
 static Window *window;
 static TextLayer *textlayer;
 time_t next;
@@ -52,18 +55,32 @@ static void schedule_and_buzz() {
   }
   
   //buzzing
-  switch(buzz_intensity){
-    case BUZZ_SHORT:
-      vibes_short_pulse();
-      break;
-    case BUZZ_LONG:
-      vibes_short_pulse();
-      break;
-    case BUZZ_DOUBLE:
-      vibes_double_pulse();
-      break;  
-  }
+ 
+// Check if quiet hours apply
+static time_t t;
+static struct tm now;
+t = time(NULL);
+  now = *(localtime(&t)); 
+  // APP_LOG(APP_LOG_LEVEL_INFO, "t2");
   
+    if (now.tm_hour >= QUIET_TIME_END && now.tm_hour <= QUIET_TIME_START) {
+	   switch(buzz_intensity){
+	    case BUZZ_SHORT:
+	      vibes_short_pulse();
+	      break;
+	    case BUZZ_LONG:
+	      vibes_short_pulse();
+	      break;
+	    case BUZZ_DOUBLE:
+	      vibes_double_pulse();
+	      break;  
+	  }
+    }
+  
+
+
+  
+
 //   //debug
 //   t = localtime(&next);
 //   strftime(s_time, sizeof(s_time), "%H:%M:%S", t);
@@ -82,12 +99,12 @@ static void init() {
   
   // reading stored values
   buzz_intensity = persist_exists(KEY_BUZZ_INTENSITY)? persist_read_int(KEY_BUZZ_INTENSITY) : BUZZ_DOUBLE;
-  buzz_interval = persist_exists(KEY_BUZZ_INTERVAL)? persist_read_int(KEY_BUZZ_INTERVAL) : 2;
+  buzz_interval = persist_exists(KEY_BUZZ_INTERVAL)? persist_read_int(KEY_BUZZ_INTERVAL) : 60;
   buzz_start = persist_exists(KEY_BUZZ_START)? persist_read_int(KEY_BUZZ_START) : START_ON_HOUR;
- // START_IMMEDIATLY
- // START_ON_15MIN
-  //START_ON_HALFHOUR
-  //START_ON_HOUR
+  // START_IMMEDIATLY
+  // START_ON_15MIN
+  // START_ON_HALFHOUR
+  // START_ON_HOUR
   
   // if it is a wake up call - buzz and reschedule
   schedule_and_buzz();
