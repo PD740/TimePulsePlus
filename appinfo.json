@@ -5,9 +5,9 @@
         "KEY_BUZZ_START": 2
     },
     "capabilities": [
-        "configurable"
+        ""
     ],
-    "companyName": "yuri@galanter.net",
+    "companyName": "CJ",
     "enableMultiJS": true,
     "longName": "Nag for Pebble",
     "projectType": "native",
@@ -28,8 +28,8 @@
         "basalt",
         "chalk"
     ],
-    "uuid": "187e3484-3d4f-4eaf-9e5c-0397439621dc",
-    "versionLabel": "1.33",
+    "uuid": "187e3434-3d4f-4e33-9e5c-0239723121dc",
+    "versionLabel": "1.01",
     "watchapp": {
         "watchface": false
     }
