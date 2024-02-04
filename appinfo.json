@@ -5,10 +5,10 @@
         "KEY_BUZZ_START": 2
     },
     "capabilities": [
-        ""
+        "configurable"
     ],
-    "companyName": "CJ",
-    "enableMultiJS": true,
+    "companyName": "Christophe Jeannette",
+    "enableMultiJS": false,
     "longName": "Nag for Pebble",
     "projectType": "native",
     "resources": {
@@ -22,7 +22,7 @@
         ]
     },
     "sdkVersion": "3",
-    "shortName": "Nag for Pebble",
+    "shortName": "TimeTracker Vibes",
     "targetPlatforms": [
         "aplite",
         "basalt",
