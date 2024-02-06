@@ -3,6 +3,8 @@
 #define KEY_BUZZ_INTERVAL 1
 #define KEY_BUZZ_START 2  
 #define KEY_NEXT_TIME 3
+#define KEY_QUIET_TIME_START 4
+#define KEY_QUIET_TIME_END 5
 
 // buzz intensity
 #define BUZZ_DISABLED 0
@@ -12,6 +14,5 @@
   
 // buzz start
 #define START_IMMEDIATLY 0
-#define START_ON_15MIN 1
-#define START_ON_HALFHOUR 2
-#define START_ON_HOUR 3
+#define COMPUTE_NEW_TIME 1
+

@@ -22,11 +22,10 @@
         ]
     },
     "sdkVersion": "3",
-    "shortName": "TimeTracker Vibes",
+    "shortName": "TimePulse",
     "targetPlatforms": [
         "aplite",
-        "basalt",
-        "chalk"
+        "basalt"
     ],
     "uuid": "187e3434-3d4f-4e33-9e5c-0239723121dc",
     "versionLabel": "1.01",
