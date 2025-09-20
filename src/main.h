@@ -6,6 +6,9 @@
 #define KEY_QUIET_TIME_START 4
 #define KEY_QUIET_TIME_END 5
 
+// buzz intervals
+#define BUZZ_INTERVAL_15_PLUS 115
+
 // buzz intensity
 #define BUZZ_DISABLED 0
 #define BUZZ_SHORT 1
