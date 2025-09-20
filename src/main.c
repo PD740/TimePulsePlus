@@ -11,6 +11,82 @@ time_t next;
 int buzz_intensity, buzz_interval, buzz_start, quiet_time_start, quiet_time_end;
 int menu_position = 0;
 
+static int get_interval_minutes(int interval_setting)
+{
+  switch (interval_setting)
+  {
+  case 15:
+    return 15;
+  case 30:
+    return 30;
+  case 60:
+    return 60;
+  case BUZZ_INTERVAL_15_PLUS:
+    return 15;
+  default:
+    return 60;
+  }
+}
+
+static int compute_15_plus_buzz_count(time_t event_time)
+{
+  struct tm *event_tm = localtime(&event_time);
+  if (!event_tm)
+  {
+    return 1;
+  }
+
+  int minute = event_tm->tm_min % 60;
+  switch (minute)
+  {
+  case 0:
+    return 4;
+  case 15:
+    return 1;
+  case 30:
+    return 2;
+  case 45:
+    return 3;
+  default:
+    return 1;
+  }
+}
+
+static void trigger_single_buzz()
+{
+  switch (buzz_intensity)
+  {
+  case BUZZ_SHORT:
+    vibes_short_pulse();
+    break;
+  case BUZZ_LONG:
+    vibes_long_pulse();
+    break;
+  case BUZZ_DOUBLE:
+    vibes_double_pulse();
+    break;
+  default:
+    break;
+  }
+}
+
+static void perform_buzz_sequence(int count)
+{
+  if (buzz_intensity == BUZZ_DISABLED || count <= 0)
+  {
+    return;
+  }
+
+  for (int i = 0; i < count; i++)
+  {
+    trigger_single_buzz();
+    if (i < count - 1)
+    {
+      psleep(1000);
+    }
+  }
+}
+
 static void saveConfig()
 {
   persist_write_int(KEY_BUZZ_INTENSITY, buzz_intensity);
@@ -78,6 +154,9 @@ static void schedule_and_buzz()
     next = time(NULL);
   }
 
+  time_t event_time = next;
+  int interval_minutes = get_interval_minutes(buzz_interval);
+
   // Debug
   struct tm *t = localtime(&next);
   char s_time[] = "88:44:67";
@@ -88,10 +167,8 @@ static void schedule_and_buzz()
   // if inital call is to start at specific hour time - calculate that time
   if (buzz_start == COMPUTE_NEW_TIME)
   {
-    int period = buzz_interval;
-
     next = (next / 60) * 60;                              // rounding to a minute (removing seconds)
-    next = next - (next % (period * 60)) + (period * 60); // calculating exact start timing
+    next = next - (next % (interval_minutes * 60)) + (interval_minutes * 60); // calculating exact start timing
 
     // and after that there will be regular wakeup call
     persist_write_int(KEY_BUZZ_START, START_IMMEDIATLY);
@@ -99,23 +176,20 @@ static void schedule_and_buzz()
   }
   else
   { // otherwise scheduling next call according to inteval
-    next = next + (buzz_interval * 60);
+    next = next + (interval_minutes * 60);
   }
 
   // Check if quiet hours apply
   if (!isQuietTime(quiet_time_start, quiet_time_end))
   {
-    switch (buzz_intensity)
+    if (buzz_interval == BUZZ_INTERVAL_15_PLUS)
     {
-    case BUZZ_SHORT:
-      vibes_short_pulse();
-      break;
-    case BUZZ_LONG:
-      vibes_long_pulse();
-      break;
-    case BUZZ_DOUBLE:
-      vibes_double_pulse();
-      break;
+      int buzz_count = compute_15_plus_buzz_count(event_time);
+      perform_buzz_sequence(buzz_count);
+    }
+    else
+    {
+      perform_buzz_sequence(1);
     }
   }
 
@@ -218,6 +292,9 @@ static void drawOptions()
   case 60:
     strcat(finalMessage, "Hour");
     break;
+  case BUZZ_INTERVAL_15_PLUS:
+    strcat(finalMessage, "15mn+");
+    break;
   default:
     buzz_interval = 60;
     strcat(finalMessage, "Hour");
@@ -281,6 +358,8 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context)
     else if (buzz_interval == 30)
       buzz_interval = 60;
     else if (buzz_interval == 60)
+      buzz_interval = BUZZ_INTERVAL_15_PLUS;
+    else if (buzz_interval == BUZZ_INTERVAL_15_PLUS)
       buzz_interval = 15;
     else
       buzz_interval = 60;
